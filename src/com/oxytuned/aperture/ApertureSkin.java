@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ScrollView;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import java.util.Collections;
@@ -102,11 +103,13 @@ final class ApertureSkin {
         final Core core;
         final TextView heading,said,answered;
         final LinearLayout panel;
+        final ScrollView transcript;
         TerminalView(Context c,KsTheme t,boolean dock){
             super(c);ksTheme=t;docked=dock;setClipChildren(false);
             panel=new LinearLayout(c);panel.setOrientation(dock?LinearLayout.HORIZONTAL:LinearLayout.VERTICAL);panel.setGravity(Gravity.CENTER);
             core=new Core(c);
             heading=new TextView(c);said=new TextView(c);answered=new TextView(c);
+            transcript=new ScrollView(c); transcript.setFillViewport(false); transcript.setVerticalScrollBarEnabled(true);
             heading.setText("APERTURE SCIENCE  //  AI TERMINAL");heading.setGravity(Gravity.CENTER);
             said.setGravity(Gravity.CENTER);answered.setGravity(Gravity.CENTER);
             if(dock){
@@ -121,14 +124,21 @@ final class ApertureSkin {
             }else{
                 int dim=Math.min(c.getResources().getDisplayMetrics().widthPixels,c.getResources().getDisplayMetrics().heightPixels);
                 panel.addView(heading);
-                // Larger core, while retaining room for headings and conversation text.
-                int coreSize=(int)(dim*.84f);
-                panel.addView(core,new LinearLayout.LayoutParams(coreSize,coreSize));
-                LinearLayout.LayoutParams line=new LinearLayout.LayoutParams(-1,-2);line.topMargin=t.px(10);
-                panel.addView(said,line);panel.addView(answered,new LinearLayout.LayoutParams(-1,-2));
+                // Weight-based layout: the core and transcript always share the actual screen height.
+                // When text is hidden the core expands; when text appears it yields reading space.
+                panel.addView(core,new LinearLayout.LayoutParams(-1,0,1f));
+                LinearLayout textBody=new LinearLayout(c);textBody.setOrientation(LinearLayout.VERTICAL);
+                textBody.setPadding(t.px(12),t.px(6),t.px(12),t.px(8));
+                textBody.addView(said,new LinearLayout.LayoutParams(-1,-2));
+                textBody.addView(answered,new LinearLayout.LayoutParams(-1,-2));
+                transcript.addView(textBody,new ScrollView.LayoutParams(-1,-2));
+                panel.addView(transcript,new LinearLayout.LayoutParams(-1,0,.68f));
                 panel.setPadding(t.px(22),t.px(12),t.px(22),t.px(12));
                 addView(panel,new FrameLayout.LayoutParams(-1,-1));
-                answered.setMaxLines(6);answered.setEllipsize(TextUtils.TruncateAt.END);
+                transcript.setVisibility(GONE);
+                // The scroll view handles long answers; never ellipsize full-screen transcripts.
+                answered.setMaxLines(Integer.MAX_VALUE);answered.setEllipsize(null);
+                said.setMaxLines(Integer.MAX_VALUE);said.setEllipsize(null);
             }
             restyle();refresh();
         }
@@ -150,7 +160,13 @@ final class ApertureSkin {
             core.invalidate();
         }
         void refresh(){said.setText(command.isEmpty()?"":"> "+command);said.setVisibility(command.isEmpty()?GONE:VISIBLE);
-            String response=answer.isEmpty()?tool:answer;answered.setText(response);answered.setVisibility(response.isEmpty()?GONE:VISIBLE);}
+            String response=answer.isEmpty()?tool:answer;answered.setText(response);answered.setVisibility(response.isEmpty()?GONE:VISIBLE);
+            if(!docked){
+                boolean hasText=!command.isEmpty()||!response.isEmpty();
+                transcript.setVisibility(hasText?VISIBLE:GONE);
+                if(hasText)transcript.post(()->transcript.scrollTo(0,0));
+            }
+        }
         @Override protected void onAttachedToWindow(){super.onAttachedToWindow();core.start();}
         @Override protected void onDetachedFromWindow(){core.stop();super.onDetachedFromWindow();}
     }
