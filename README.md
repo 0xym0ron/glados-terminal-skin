@@ -33,3 +33,5 @@ The skin affects visuals only. It does not replace the wake word, Home Assistant
 
 ## Status
 The source has not been compiled or tested against the official Android SDK in the authoring environment. Run the build and verify on your Echo Show before relying on it.
+
+<img width="843" height="421" alt="image" src="https://github.com/user-attachments/assets/76ed0d1d-2749-4b59-81d6-c5b51c224fc6" />
