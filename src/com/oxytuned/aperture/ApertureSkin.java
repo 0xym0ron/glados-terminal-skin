@@ -110,7 +110,7 @@ final class ApertureSkin {
             heading.setText("APERTURE SCIENCE  //  AI TERMINAL");heading.setGravity(Gravity.CENTER);
             said.setGravity(Gravity.CENTER);answered.setGravity(Gravity.CENTER);
             if(dock){
-                panel.addView(core,new LinearLayout.LayoutParams(t.px(96),t.px(96)));
+                panel.addView(core,new LinearLayout.LayoutParams(t.px(124),t.px(124)));
                 LinearLayout words=new LinearLayout(c);words.setOrientation(LinearLayout.VERTICAL);
                 words.addView(heading);words.addView(said);words.addView(answered);
                 LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.leftMargin=t.px(12);panel.addView(words,lp);
@@ -121,7 +121,9 @@ final class ApertureSkin {
             }else{
                 int dim=Math.min(c.getResources().getDisplayMetrics().widthPixels,c.getResources().getDisplayMetrics().heightPixels);
                 panel.addView(heading);
-                panel.addView(core,new LinearLayout.LayoutParams((int)(dim*.58f),(int)(dim*.58f)));
+                // Larger core, while retaining room for headings and conversation text.
+                int coreSize=(int)(dim*.84f);
+                panel.addView(core,new LinearLayout.LayoutParams(coreSize,coreSize));
                 LinearLayout.LayoutParams line=new LinearLayout.LayoutParams(-1,-2);line.topMargin=t.px(10);
                 panel.addView(said,line);panel.addView(answered,new LinearLayout.LayoutParams(-1,-2));
                 panel.setPadding(t.px(22),t.px(12),t.px(22),t.px(12));
@@ -167,18 +169,31 @@ final class ApertureSkin {
             float target=reactive?level:0;eased+=(target-eased)*.16f;
             p.setStyle(Paint.Style.FILL);p.setColor(0xFF09131D);canvas.drawCircle(0,0,111,p);
             p.setColor(0x2223C9DF);for(int i=-100;i<=100;i+=20){canvas.drawRect(i,-102,i+0.6f,102,p);canvas.drawRect(-102,i,102,i+.6f,p);}
+            // Outer structural rings and segmented aperture housing.
+            ring(canvas,115,0,360,0x553D6C82,1.3f);
+            for(int i=0;i<24;i++){ring(canvas,114,i*15+t*2.4f,6,0x6680C5D0,1.3f);}
             ring(canvas,109,0,360,0x664B7384,1);
             ring(canvas,101,0,360,0xFF243F50,3);
             for(int i=0;i<12;i++){float a=i*30+(t*9)%360;ring(canvas,101,a,11,0x88FF9D34,2);}
             ring(canvas,91,-90+t*16,100,ORANGE,3);
             ring(canvas,91,90-t*12,56,0xFF4AD7E8,2);
             ring(canvas,77,-t*24,220,0xAAFFB76D,1.4f);
+            ring(canvas,84,30+t*7,28,0xBBFFE0A5,2);
+            ring(canvas,84,210+t*7,28,0xBBFFE0A5,2);
+            // Moving calibration markers; motion stays lightweight for Echo hardware.
+            for(int i=0;i<8;i++){
+                float a=(float)(i*Math.PI/4+t*.16f);
+                float x=(float)Math.cos(a),y=(float)Math.sin(a);
+                p.setColor(0x99FFAE53);p.setStrokeWidth(1.8f);
+                canvas.drawLine(x*106,y*106,x*112,y*112,p);
+            }
             for(int i=0;i<40;i++){
                 float a=(float)(i*Math.PI*2/40);float radius=63;float height=5+eased*22*(.3f+.7f*(float)Math.abs(Math.sin(i*.77+t*5)));
                 float x=(float)Math.cos(a),y=(float)Math.sin(a);
                 p.setStrokeWidth(2.2f);p.setColor(i%5==0?0xFFFFC875:0xFFDB7B2B);canvas.drawLine(x*radius,y*radius,x*(radius+height),y*(radius+height),p);
             }
             p.setStyle(Paint.Style.FILL);p.setColor(0x44FF9E3B);canvas.drawCircle(0,0,42+eased*6,p);
+            p.setColor(0x55FF8A25);canvas.drawCircle(0,0,36+eased*8,p);
             p.setColor(0xFFFFA13D);canvas.drawCircle(0,0,28+eased*5,p);
             p.setColor(0xFFFFE4AF);canvas.drawCircle(0,0,14+eased*3,p);
             p.setColor(0xFF2C1708);canvas.drawCircle(0,0,5,p);
