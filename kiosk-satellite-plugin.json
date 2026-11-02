@@ -1,3 +1,4 @@
+
 {
   "schemaVersion": 1,
   "id": "oxytuned-aperture-terminal-skin",
@@ -9,7 +10,12 @@
   "description": "Orange AI core, animated diagnostic rings, voice-reactive telemetry and full/docked Voice Satellite overlays.",
   "author": "OpenAI",
   "license": "MIT",
-  "capabilities": ["overlay", "host.read", "voice.skin", "voice.text"],
+  "capabilities": [
+    "overlay",
+    "host.read",
+    "voice.skin",
+    "voice.text"
+  ],
   "voiceSkinThumbnail": "voice-skin.webp",
-  "minAppVersion": "2026.10.45",
+  "minAppVersion": "2026.10.45"
 }
